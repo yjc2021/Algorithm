@@ -1,3 +1,8 @@
+// 2023-11-06
+// 백준 8980 
+// 골드 1
+// 그리디
+
 #include <bits/stdc++.h>
 using namespace std;
 
