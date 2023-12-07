@@ -26,6 +26,10 @@ function solution(maps) {
     const m = maps[0].length;
     let visited = Array.from(Array(n), () => Array(m).fill(0));
     
+    // .fill() => new Array(n)로 생성된 empty 배열의 각 요소를 유효하게 해준다
+    // new Array() 생성자를 사용 시 무조건 뒤에 .fill()을 붙여야 한다
+    new Array(n).fill().map(() => new Array())
+
     const queue = new Queue();
     
     queue.enqueue([0,0]);
