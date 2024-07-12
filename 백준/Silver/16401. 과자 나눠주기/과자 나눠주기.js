@@ -14,14 +14,12 @@ function solution(...args) {
   const [m, n, candies] = args;
   candies.sort((a, b) => a - b);
   let left = 1;
-  let right = 1000000000;
+  let right = candies.at(-1);
   let ans = 0;
 
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
-
-    let cnt = 0;
-    candies.forEach((candy) => (cnt += Math.floor(candy / mid)));
+    const cnt = candies.reduce((acc, cur) => acc + Math.floor(cur / mid), 0);
 
     if (cnt >= m) {
       left = mid + 1;
