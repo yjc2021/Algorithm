@@ -13,7 +13,6 @@ console.log(solution(n, m, trees));
 function solution(n, m, trees) {
   let left = 1;
   let right = Math.max(...trees);
-  let ans = 0;
   while (left <= right) {
     const mid = Math.floor((left + right) / 2);
 
@@ -25,8 +24,7 @@ function solution(n, m, trees) {
       right = mid - 1;
     } else {
       left = mid + 1;
-      ans = Math.max(ans, mid);
     }
   }
-  return ans;
+  return right;
 }
