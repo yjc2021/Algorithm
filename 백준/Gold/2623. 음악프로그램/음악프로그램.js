@@ -1,72 +1,55 @@
-const fs = require("node:fs");
-const readline = require("readline");
-const dest = process.execArgv.includes("--stack-size=65536")
-  ? process.stdin
-  : fs.createReadStream("input.txt", "utf-8");
-const rl = readline.createInterface({
-  input: dest,
-  output: process.stdout,
-});
-const input = [];
-
-rl.on("line", (line) => {
-  input.push(line);
-}).on("close", () => {
-  const [n, m] = input.shift().split(" ").map(Number);
-  const orders = input.map((line) => line.split(" ").map(Number).slice(1));
-  console.log(solution(n, m, orders));
-});
-
 class Queue {
   constructor() {
     this.q = [];
-    this.front = 0;
-    this.rear = 0;
-  }
-  enqueue(value) {
-    this.q[this.rear++] = value;
-  }
-  dequeue() {
-    const del = this.q[this.front];
-    delete this.q[this.front++];
-    return del;
+    this.h = 0;
+    this.t = 0;
   }
   size() {
-    return this.rear - this.front;
+    return this.t - this.h;
+  }
+  push(item) {
+    this.q[this.t++] = item;
+  }
+  pop() {
+    const del = this.q[this.h];
+    delete this.q[this.h++];
+    return del;
   }
 }
-const solution = (n, m, orders) => {
-  const graph = Array.from(Array(n + 1), () => []);
-  const inDegrees = Array(n + 1).fill(0);
 
-  orders.forEach((order) => {
-    for (let i = 0; i < order.length - 1; i += 1) {
-      graph[order[i]].push(order[i + 1]);
-      inDegrees[order[i + 1]] += 1;
-    }
-  });
+const path = process.platform === 'linux' ? [0, 'utf-8'] : ['input.txt'];
+const input = require('fs').readFileSync(...path).toString().trim().split('\n');
 
-  function topologySort() {
-    result = [];
-    q = new Queue();
-
-    for (let i = 1; i <= n; i += 1) {
-      if (inDegrees[i] === 0) {
-        q.enqueue(i);
-      }
-    }
-
-    while (q.size()) {
-      const now = q.dequeue();
-      result.push(now);
-      for (v of graph[now]) {
-        inDegrees[v] -= 1;
-        if (inDegrees[v] === 0) q.enqueue(v);
-      }
-    }
-    if (result.length === n) return result.join("\n");
-    return 0;
+const [n,m] = input[0].split(' ').map(Number);
+const adj = Array.from({length: n+1}, () => []);
+const deg = Array(n+1).fill(0);
+input.slice(1, 1+m).forEach(line => {
+  const parsed = line.split(' ').slice(1).map(Number)
+  for(let i=1; i<parsed.length;i+=1) {
+    adj[parsed[i-1]].push(parsed[i]);
+    deg[parsed[i]]+=1;
   }
+})
 
-  return topologySort();
-};
+const q = new Queue();
+const res = [];
+deg.slice(1).forEach((v,idx) => {
+  if(v!==0) return;
+  q.push(idx+1);
+})
+
+while(q.size()) {
+  const cur = q.pop();
+  res.push(cur);
+  for(const next of adj[cur]) {
+    deg[next] -= 1;
+    if(deg[next] === 0) q.push(next);
+  }
+}
+
+if(res.length !== n) {
+  console.log(0);
+  process.exit(0)
+}
+
+console.log(res.join('\n'))
