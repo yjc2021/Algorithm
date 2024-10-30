@@ -1,91 +1,59 @@
-const fs = require("node:fs");
-const readline = require("readline");
-const dest = process.execArgv.includes("--stack-size=65536")
-  ? process.stdin
-  : fs.createReadStream("input.txt", "utf-8");
-const rl = readline.createInterface({
-  input: dest,
-  output: process.stdout,
-});
-const input = [];
-
-rl.on("line", (line) => {
-  input.push(line);
-}).on("close", () => {
-  const n = Number(input.shift());
-  const people = input.shift().split(" ");
-  const m = Number(input.shift());
-  const heritage = input.map((line) => line.split(" "));
-  console.log(solution(n, people, m, heritage));
-});
-
 class Queue {
   constructor() {
     this.q = [];
-    this.front = 0;
-    this.rear = 0;
-  }
-
-  enqueue(value) {
-    this.q[this.rear++] = value;
-  }
-  dequeue() {
-    const del = this.q[this.front];
-    delete this.q[this.front++];
-    return del;
+    this.h = 0;
+    this.t = 0;
   }
   size() {
-    return this.rear - this.front;
+    return this.t - this.h;
+  }
+  push(item) {
+    this.q[this.t++] = item;
+  }
+  pop() {
+    const del = this.q[this.h];
+    delete this.q[this.h++];
+    return del;
+  }
+  map(fn) {
+    return this.q.map(fn);
   }
 }
 
-const solution = (n, people, m, heritage) => {
-  const ans = [];
-  const nameTable = new Map();
-  people.sort();
+const path = process.platform === 'linux' ? [0, 'utf-8'] : ['input.txt'];
+const input = require('fs').readFileSync(...path).toString().trim().split('\n');
 
-  people.forEach((person, index) => nameTable.set(person, index));
+const n = Number(input[0]);
+const people = input[1].split(' ').sort();
+const nameTable = new Map(people.map((v,idx) => [v, idx]));
+const children = Array.from({length: n}, () => []);
+const m = Number(input[2]);
+const adj = Array.from({length: n}, () => []);
+const deg = Array(n).fill(0);
+input.slice(3, 3+m).forEach(line => {
+  const [u,v] = line.split(' ').map(v => nameTable.get(v))
+  adj[v].push(u);
+  deg[u]+=1;
+})
 
-  const inDegrees = Array(n).fill(0);
-  const graph = Array.from(Array(n), () => []);
-
-  heritage.forEach(([x, y]) => {
-    graph[nameTable.get(y)].push(nameTable.get(x));
-    inDegrees[nameTable.get(x)] += 1;
-  });
-
-  const root = [];
-  const children = Array.from(Array(n), () => []);
-  const q = new Queue();
-
-  for (let i = 0; i < n; i += 1) {
-    if (inDegrees[i] === 0) {
-      root.push(i);
-      q.enqueue(i);
-    }
+const q = new Queue();
+for(let i = 0; i < n; i+=1) {
+  if(deg[i] !== 0) continue;
+  q.push(i);
+}
+for(let i = 0; i<n; i+=1) {
+  adj[i].sort((a,b) => people[a] > people[b] ? 1 : -1);
+  for(next of adj[i]) {
+    if(deg[next] - deg[i] === 1) children[i].push(next);
   }
-  while (q.size()) {
-    const now = q.dequeue();
-    for (const v of graph[now]) {
-      inDegrees[v] -= 1;
-      if (inDegrees[v] === 0) {
-        q.enqueue(v);
-        children[now].push(v);
-      }
-    }
+}
+console.log(q.size());
+console.log(q.map(v => people[v]).sort().join(' '));
+
+children.forEach((v, idx) =>{
+  let str = `${people[idx]} ${v.length}`
+  for(ch of v) {
+    str += ` ${people[ch]}`
   }
-
-  ans.push(root.length);
-  ans.push(root.map((v) => people[v]).join(" "));
-
-  for (let i = 0; i < n; i += 1) {
-    ans.push(
-      `${people[i]} ${children[i].length} ${children[i]
-        .sort()
-        .map((v) => people[v])
-        .join(" ")}`
-    );
-  }
-
-  return ans.join("\n");
-};
+  console.log(str);
+})
