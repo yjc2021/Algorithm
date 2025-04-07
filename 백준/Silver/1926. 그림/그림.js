@@ -6,24 +6,6 @@ const arr = input.slice(1,n+1).map(line => line.split(' ').map(Number));
 
 const visited = Array.from({length: n}, () => Array(m).fill(0));
 
-class Queue {
-  constructor() {
-    this.q = [];
-    this.front = 0;
-    this.rear = 0;
-  }
-  enqueue(v) {
-    this.q[this.rear++] = v;
-  }
-  dequeue() {
-    const del = this.q[this.front];
-    delete this.q[this.front++];
-    return del;
-  }
-  size() {
-    return this.rear - this.front;
-  }
-}
 const DIR = [[0,1], [0,-1], [1,0],[-1,0]]
 
 function outOfBounds(y,x) {
