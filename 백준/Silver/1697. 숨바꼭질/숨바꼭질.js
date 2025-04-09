@@ -1,20 +1,5 @@
-const fs = require("node:fs");
-const readline = require("readline");
-const dest = process.execArgv.includes("--stack-size=65536")
-  ? process.stdin
-  : fs.createReadStream("input.txt", "utf-8");
-const rl = readline.createInterface({
-  input: dest,
-  output: process.stdout,
-});
-const input = [];
-
-rl.on("line", (line) => {
-  input.push(line);
-}).on("close", () => {
-  const [n, k] = input.shift().split(" ").map(Number);
-  console.log(solution(n, k));
-});
+const path = process.platform === 'linux' ? [0, 'utf-8'] : ['input.txt'];
+const input = require('fs').readFileSync(...path).toString().trim().split('\n');
 
 class Queue {
   constructor() {
@@ -22,8 +7,8 @@ class Queue {
     this.front = 0;
     this.rear = 0;
   }
-  enqueue(value) {
-    this.q[this.rear++] = value;
+  enqueue(v) {
+    this.q[this.rear++] = v;
   }
   dequeue() {
     const del = this.q[this.front];
@@ -35,30 +20,30 @@ class Queue {
   }
 }
 
-const solution = (n, k) => {
-  const dx = [-1, 1, 2];
-  const visited = Array(200001).fill(0);
-  const q = new Queue();
+const [n,k] = input[0].split(' ').map(Number);
+const limit = n > k ? n : k;
+const visited = Array(limit*2).fill(0);
+const q = new Queue();
 
-  visited[n] = 1;
-  q.enqueue(n);
+visited[n] = 1;
+q.enqueue(n);
 
-  while (q.size()) {
-    const cur = q.dequeue();
+const dir = [1,-1,2];
+while(q.size()) {
+  const c = q.dequeue();
 
-    for (let i = 0; i < 3; i += 1) {
-      let next;
-      if (i === 2) {
-        next = cur * dx[2];
-      } else {
-        next = cur + dx[i];
-      }
-
-      if (next < 0 || next > 100000) continue;
-      if (visited[next]) continue;
-      q.enqueue(next);
-      visited[next] = visited[cur] + 1;
-    }
+  for(x of dir) {
+    let n = x === 2 ? c*x : c+x;
+    if(outOfBounds(n)) continue;
+    if(visited[n]) continue;
+    visited[n] = visited[c] + 1;
+    q.enqueue(n);
   }
-  return visited[k] - 1;
-};
+  
+}
+
+console.log(visited[k]-1);
+
+function outOfBounds(pos) {
+  return pos < 0 || pos >= limit*2;
+}
