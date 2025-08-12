@@ -1,16 +1,17 @@
-function solution(s)
-{
-    const st = [s[0]];
+function solution(s) {
+    const n = s.length;
+    const stack = [];
     
-    for(let i = 1; i<s.length; i+=1) {
-        if(st.length === 0) {
-            st.push(s[i]);
-            continue;
+    for(const c of s) {
+        if(stack.length === 0) stack.push(c);
+        else {
+            const top = stack[stack.length-1];
+            if(top === c) {
+                stack.pop();
+            } else {
+                stack.push(c);
+            }
         }
-        const top = st.pop();
-        if(s[i] === top) continue;
-        st.push(top);
-        st.push(s[i]);
     }
-    return st.length === 0 ? 1 : 0;
+    return stack.length ? 0 : 1;
 }
