@@ -1,33 +1,29 @@
 function solution(s) {
-    let ret = 0;
     const n = s.length;
+    let ret = 0;
+    
     for(let i = 0; i < n; i+=1) {
         const stack = [];
-        let isCorrect = true;
-        
+        let isValid = true;
         for(let j = 0; j < n; j+=1) {
-            const c = s[(i+j)%n];
-            
-            if(c === '[' || c === '(' || c === '{') {
-                stack.push(c);
-            } else {
+            const cur = s[(i+j)%n]
+            const top = stack[stack.length - 1];
+            if(cur === '[' || cur === '(' || cur === '{') stack.push(cur);
+            else {
                 if(stack.length === 0) {
-                    isCorrect = false;
+                    isValid = false;
                     break;
                 }
-                
-                const top = stack[stack.length-1];
-                if(c === ']' && top === '[') stack.pop();
-                else if (c===')' && top === '(') stack.pop();
-                else if (c==='}' && top === '{') stack.pop();
+                else if (top === '[' && cur === ']') stack.pop();
+                else if (top === '{' && cur === '}') stack.pop();
+                else if (top === '(' && cur === ')') stack.pop();
                 else {
-                    isCorrect = false;
+                    isValid = false;
                     break;
                 }
             }
-            
         }
-        if(isCorrect && stack.length === 0) ret+=1;
+        if(isValid && stack.length === 0) ret += 1;
     }
     return ret;
 }
