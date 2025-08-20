@@ -1,23 +1,24 @@
 function solution(record) {
-    const nameMap = new Map();
-    const parsedRecord = record.map((entry, idx) => {
-        const [command, id, name] = entry.split(' ');
-        if(command === 'Enter' || command === 'Change') {
-            nameMap.set(id, name);
-        } 
-        return [command, id, name];
-    })
-    let ans = [];
-    for([command, id] of parsedRecord) {
-        if(command === 'Change') continue;
-        ans.push(createString(command, id, nameMap))
+    const memberMap = {};
+    const answer = [];
+    
+    function createResultString(cmd, uid) {
+        if(cmd === 'Enter') return `${memberMap[uid]}님이 들어왔습니다.`
+        else return `${memberMap[uid]}님이 나갔습니다.`
     }
-    return ans;
-}
-function createString(command, id, map) {
-    if(command === 'Change') return;
-    let str = '';
-    str += command === 'Enter' ? ' 들어왔습니다.' : ' 나갔습니다.';
-    str = `${map.get(id)}님이` + str;
-    return str;
+
+    for(const s of record) {
+        const [cmd, uid, nickname] = s.split(' ');
+        
+        if(cmd === 'Enter') {
+            memberMap[uid] = nickname;
+            answer.push(['Enter', uid]);
+        } else if(cmd === 'Leave') {
+            answer.push(['Leave', uid]);
+        } else {
+            memberMap[uid] = nickname;
+        }
+    }
+    
+    return answer.map(([cmd, uid]) => createResultString(cmd, uid))   
 }
